@@ -1,13 +1,8 @@
 package SpringBoot.Test.service;
 
-import SpringBoot.Test.entity.PhatTu;
-import SpringBoot.Test.entity.RefreshToken;
-import SpringBoot.Test.entity.XacNhanEmail;
+import SpringBoot.Test.entity.*;
 import SpringBoot.Test.payload.Converter.PhatTuConverter;
-import SpringBoot.Test.payload.DataRequest.ThemBaiVietRequest;
-import SpringBoot.Test.payload.DataRequest.ThemPhatTuRequest;
-import SpringBoot.Test.payload.DataRequest.ThemRefreshTokenRequest;
-import SpringBoot.Test.payload.DataRequest.ThemXacNhanEmailRequest;
+import SpringBoot.Test.payload.DataRequest.*;
 import SpringBoot.Test.payload.DataResponse.PhatTuDTO;
 import SpringBoot.Test.payload.Response.ResponseObject;
 import SpringBoot.Test.repository.*;
@@ -23,6 +18,8 @@ import java.util.Set;
 
 @Service
 public class PhatTuService implements IPhatTu{
+    @Autowired
+    private BaiVietRepo baiVietRepo;
     @Autowired
     private ChuaRepo chuaRepo;
     @Autowired
@@ -77,6 +74,25 @@ public class PhatTuService implements IPhatTu{
         phatTuRepo.save(phatTu.get());
         return set;
     }
+    private Set<BaiViet> themListBaiViet(int phatTuId, List<ThemBaiVietRequest> requests) {
+        var phatTu = phatTuRepo.findById(phatTuId);
+        if (phatTu.isEmpty()) {
+            return null;
+        }
+        Set<BaiViet> set = new HashSet<>();
+        for (var request: requests) {
+            BaiViet baiViet = new BaiViet();
+            baiViet.setPhatTu(phatTu.get());
+            baiViet.setTieuDe(request.getTieuDe());
+            baiViet.setMoTa(request.getMoTa());
+            baiViet.setNoiDung(request.getNoiDung());
+            set.add(baiViet);
+        }
+        baiVietRepo.saveAll(set);
+        phatTu.get().setBaiViets(set);
+        phatTuRepo.save(phatTu.get());
+        return set;
+    }
 
     @Override
     public ResponseObject<PhatTuDTO> themPhatTuRequest(ThemPhatTuRequest request) {
@@ -106,6 +122,7 @@ public class PhatTuService implements IPhatTu{
         phatTuRepo.save(phatTu);
         phatTu.setRefreshTokens(themListRefreshToken(phatTu.getId(), request.getRefreshTokens()));
         phatTu.setXacNhanEmails(themListXacNhanEmail(phatTu.getId(), request.getXacNhanEmails()));
+        phatTu.setBaiViets(themListBaiViet(phatTu.getId(), request.getBaiViets()));
         return _responseObject.responseSuccess("Them phat tu thanh cong", _converter.entityToDTO(phatTu));
     }
 

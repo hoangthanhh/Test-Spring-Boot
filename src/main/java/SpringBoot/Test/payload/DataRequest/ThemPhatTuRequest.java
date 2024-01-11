@@ -1,5 +1,6 @@
 package SpringBoot.Test.payload.DataRequest;
 
+import SpringBoot.Test.entity.BinhLuanBaiViet;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -22,4 +23,6 @@ public class ThemPhatTuRequest {
     private Integer chuaId;
     private List<ThemXacNhanEmailRequest> xacNhanEmails;
     private List<ThemRefreshTokenRequest> refreshTokens;
+    private List<ThemBaiVietRequest> baiViets;
+    private List<BinhLuanBaiViet> binhLuanBaiViets;
 }
